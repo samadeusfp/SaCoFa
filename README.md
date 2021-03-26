@@ -5,6 +5,7 @@ This repository is based on the paper "SaCoFa: Semantics-aware Control-flow Anon
 To run our algorithm you need the following Python packages:
 - NumPy (http://www.numpy.org)
 - PM4Py (https://pm4py.fit.fraunhofer.de)
+- OpyenXES (https://github.com/opyenxes/OpyenXes)
 
 ## How to run SaCoFa
 If you want to run SaCoFa you should use the file "callprivatize.py". The different parameters of SaCoFa can be changed within the file. We additionally, provide the evaluation scripts used for our paper in the directory "Evaluation".
