@@ -1,6 +1,11 @@
 # SaCoFa
 This repository is based on the paper "SaCoFa: Semantics-aware Control-flow Anonymization for Process Mining". It implements several instatiations of the SaCoFa approach for a trace-variant-query. Such a query generates a list of the control-flow behaviour present in an event log. For such queries the privacy is ensured by enforcing differential privacy. 
 
+## Requirements
+To run our algorithm you need the following Python packages:
+- NumPy (http://www.numpy.org)
+- PM4Py (https://pm4py.fit.fraunhofer.de)
+
 ## How to run SaCoFa
 If you want to run SaCoFa you should use the file "callprivatize.py". The different parameters of SaCoFa can be changed within the file. We additionally, provide the evaluation scripts used for our paper in the directory "Evaluation".
 
