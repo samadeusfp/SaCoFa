@@ -44,6 +44,6 @@ This project is available under MIT license. However, libaries used by this proj
 ## How to contact us
 SaCoFa was developed at the Database and Information Systems group of Humboldt-Universität zu Berlin. If you want to contact us, just send us a mail at: fahrenks || hu-berlin.de
 
-## Find out more about our researcj
+## Find out more about our research
 If you wamt find out more about our research, you can visit the following website: 
 https://sites.google.com/view/sfahrenkrog-petersen/start
