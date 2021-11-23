@@ -1,5 +1,5 @@
 # SaCoFa
-This repository is based on the paper "SaCoFa: Semantics-aware Control-flow Anonymization for Process Mining". It implements several instatiations of the SaCoFa approach for a trace-variant-query. Such a query generates a list of the control-flow behaviour present in an event log. For such queries the privacy is ensured by enforcing differential privacy. 
+This repository is based on the paper "SaCoFa: Semantics-aware Control-flow Anonymization for Process Mining". It implements several instatiations of the SaCoFa approach for a trace-variant-query. Such a query generates a list of the control-flow behaviour present in an event log. For such queries the privacy is ensured by enforcing differential privacy. The respective paper behind this approach has won the "Best Student Paper Award" at ICPM 2021.
 
 If you use our paper within an academic setting, please cite our paper:
 ```
@@ -43,3 +43,7 @@ This project is available under MIT license. However, libaries used by this proj
 
 ## How to contact us
 SaCoFa was developed at the Database and Information Systems group of Humboldt-Universität zu Berlin. If you want to contact us, just send us a mail at: fahrenks || hu-berlin.de
+
+## Find out more about our researcj
+If you wamt find out more about our research, you can visit the following website: 
+https://sites.google.com/view/sfahrenkrog-petersen/start
