@@ -15,8 +15,8 @@ TRACE_END = "TRACE_END"
 EVENT_DELIMETER = ">>>"
 
 basePath = '/Users/stephan/SaCoFa_EventLogs'          # path to the folder containing all the event logs
-logName = 'CoSeLoG'
-max_k = 5
+logName = 'traffic_fines'
+max_k_list = [1,2,3,4,5]
 
 # the preferrable file structure is given in the README
 
@@ -32,12 +32,16 @@ def main():
     for mode in modeRange:
         for eps in epsRange:
             for i in range(tries):
-                out_path = basePath + '/Out/' + logName + '/' + logName  +  '_' + str(eps) +'_max_k' + str(max_k) + '_' + mode + '_' + str(i) + ".xes"
                 if mode == 'df_laplace':
+                    out_path = basePath + '/Out/' + logName + '/' + logName + '_' + str(eps) + '_' + mode + '_' + str(i) + ".xes"
                     private_log = privatize_df_laplace.privatize_tracevariants(log_x, log_pm4py, epsilon)
+                    xes_exporter.apply(private_log, out_path)
                 elif mode == 'df_exp':
-                    private_log = privatize_df_exp.privatize_tracevariants(log_x, log_pm4py, epsilon,max_k)
-                xes_exporter.apply(private_log,out_path)
+                    for max_k in max_k_list:
+                        out_path = basePath + '/Out/' + logName + '/' + logName + '_' + str(eps) + '_max_k' + str(
+                            max_k) + '_' + mode + '_' + str(i) + ".xes"
+                        private_log = privatize_df_exp.privatize_tracevariants(log_x, log_pm4py, epsilon,max_k)
+                        xes_exporter.apply(private_log,out_path)
     print("Done for all eps for all tries.")
 
 
