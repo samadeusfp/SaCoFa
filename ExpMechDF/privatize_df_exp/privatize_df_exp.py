@@ -24,7 +24,7 @@ import random
 import datetime
 from dateutil.tz import tzutc
 from collections import Counter as Counter
-from privatize_df_occured import exp_mech as exp
+from privatize_df_ba import exp_mech as exp
 
 
 
@@ -33,30 +33,32 @@ TRACE_END = "TRACE_END"
 EVENT_DELIMETER = ">>>"
 
 sys.setrecursionlimit(1000)
-def split_df_relations(df_relations, event_int_mapping):
-    non_zero_set=[]
-    zero_set=[]
+def split_df_relations(k_follows_relations, event_int_mapping,max_k):
+    add_noise_set=[]
+    no_noise_set=[]
     for i in range(0, len(event_int_mapping)-1):
         for j in range(1, len(event_int_mapping)):
-            if i==event_int_mapping[TRACE_START] and j==event_int_mapping[TRACE_END]:
+            if i == event_int_mapping[TRACE_START] and j == event_int_mapping[TRACE_END]:
                 pass
-            elif df_relations[i,j]==0:
-                zero_set.append((i,j))
+            elif k_follows_relations[i][j] > max_k:
+                no_noise_set.append((i,j))
             else:
-                non_zero_set.append((i,j))
-    return non_zero_set, zero_set
+                add_noise_set.append((i,j))
+    print("Add Noise Set: " + str(len(add_noise_set)))
+    print("No Noise Set: " + str(len(no_noise_set)))
+    return add_noise_set, no_noise_set
 
 
-def privatize_df_frequencies(df_relations, event_int_mapping, epsilon):
-    non_zero_set, zero_set = split_df_relations(df_relations, event_int_mapping)
-    output_universes = np.linspace(0,len(zero_set), num=len(zero_set)+1, dtype=int)
+def privatize_df_frequencies(df_relations, event_int_mapping, epsilon,k_follows_relations,max_k):
+    add_noise_set, no_noise_set = split_df_relations(k_follows_relations, event_int_mapping,max_k)
+    output_universes = np.linspace(0,len(no_noise_set), num=len(no_noise_set)+1, dtype=int)
     chosen_universe = exp.exp_mech(output_universes, epsilon)
-    for x in random.sample(zero_set, chosen_universe):
-        non_zero_set.append(x)
-        zero_set.remove(x)
-    return apply_laplace_noise_df(df_relations, non_zero_set, epsilon)
+    for x in random.sample(no_noise_set, chosen_universe):
+        add_noise_set.append(x)
+        no_noise_set.remove(x)
+    return apply_laplace_noise_df(df_relations, add_noise_set, epsilon)
 
-def privatize_df(log, event_int_mapping, epsilon):
+def privatize_df(log, event_int_mapping, epsilon,k_follows_relations,max_k):
     #get true df frequencies
     print("Retrieving Directly Follows Frequencies   ", end = '')
     df_relations = get_df_frequencies(log, event_int_mapping)
@@ -68,7 +70,6 @@ def privatize_df(log, event_int_mapping, epsilon):
     #privatize df frequencies
     print("Privatizing Log   ", end = '')
     int_event_mapping = {value:key for key, value in event_int_mapping.items()}
-    #print(int_event_mapping)
     activity_list = []
     for key, value in int_event_mapping.items():
         temp = [key,value]
@@ -76,7 +77,8 @@ def privatize_df(log, event_int_mapping, epsilon):
 
     #df = pd.DataFrame(data=df_relations, index=activity_list, columns=activity_list)
     #df.to_csv('df_relations.csv',sep=',',columns=activity_list, header=activity_list)
-    df_relations = privatize_df_frequencies(df_relations, event_int_mapping, epsilon)
+    #print(int_event_mapping)
+    df_relations = privatize_df_frequencies(df_relations, event_int_mapping, epsilon,k_follows_relations,max_k)
     print("Done")
 
     #write to disk
@@ -323,7 +325,48 @@ def get_prefix_frequencies_from_log(log):
                 prefix_frequencies[current_prefix] = 1
         return prefix_frequencies
 
-def privatize_tracevariants(log_x,log_pm4py,epsilon):
+def get_k_follows_trace(activity_list):
+    k_follows_trace = dict()
+    counter_outer_loop= 0
+    for a in activity_list[:-1]:
+        k_follows_trace[a] = dict()
+        counter_inner_loop = 0
+        for b in activity_list:
+            if counter_inner_loop != counter_outer_loop and counter_inner_loop > counter_outer_loop:
+                k_follows_trace[a][b] = counter_inner_loop - counter_outer_loop
+            counter_inner_loop +=1
+        counter_outer_loop += 1
+    return k_follows_trace
+
+def init_k_follows_relation(event_mapping):
+    k_follows_relations = dict()
+    for a in range(0, len(event_mapping)):
+        k_follows_relations[a] = dict()
+        for b in range(0, len(event_mapping)):
+            k_follows_relations[a][b] = sys.maxsize
+    return k_follows_relations
+
+def update_k_follows(k_follows_relations,k_follows_trace,int_event_mapping):
+    for activity_a in k_follows_trace.keys():
+        for activity_b in k_follows_trace[activity_a].keys():
+            k_follows_relations[int_event_mapping[activity_a]][int_event_mapping[activity_b]] = min(k_follows_relations[int_event_mapping[activity_a]][int_event_mapping[activity_b]],k_follows_trace[activity_a][activity_b])
+    return k_follows_relations
+
+
+def get_k_follows_relations(log,event_mapping):
+    k_follows_relations = init_k_follows_relation(event_mapping)
+    for trace in log:
+        activity_list = list()
+        activity_list.append(TRACE_START)
+        for event in trace:
+            activity_list.append(event["concept:name"])
+        activity_list.append(TRACE_END)
+        k_follows_trace = get_k_follows_trace(activity_list)
+        k_follows_relations = update_k_follows(k_follows_relations,k_follows_trace,event_mapping)
+    print(k_follows_relations)
+    return k_follows_relations
+
+def privatize_tracevariants(log_x,log_pm4py,epsilon,max_k):
     start = time.time()
     column_names = ['epsilon', 'traces_before', 'traces_after', 'total_df_amount', 'total_df_deleted',
                     'df_percentage deleted', 'variants_before', 'variants_after', 'common_variants', 'runtime']
@@ -343,7 +386,9 @@ def privatize_tracevariants(log_x,log_pm4py,epsilon):
     trace_variant_df = pd.DataFrame(columns=column_names_common_tv)
     trace_variant_df = trace_variant_df.append(common_traces_dict, ignore_index=True)
 
-    private_log, traces_before, traces_after, total_df_amount, total_df_deleted = privatize_df(log_x, event_mapping,epsilon)
+    k_follows_relations = get_k_follows_relations(log_pm4py,event_mapping)
+
+    private_log, traces_before, traces_after, total_df_amount, total_df_deleted = privatize_df(log_x, event_mapping,epsilon,k_follows_relations,max_k)
     end = time.time()
     df_percentage_deleted = total_df_deleted / total_df_amount
 
