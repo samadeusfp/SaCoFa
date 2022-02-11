@@ -24,7 +24,7 @@ import random
 import datetime
 from dateutil.tz import tzutc
 from collections import Counter as Counter
-from privatize_df_ba import exp_mech as exp
+from privatize_df_exp import exp_mech as exp
 
 
 
@@ -132,12 +132,13 @@ def get_df_frequencies(log, event_int_mapping):
 def apply_laplace_noise_df(df_relations, non_zero_set, epsilon):
     lambd = 1/epsilon
     for cell in non_zero_set:
-        a = cell[0]
-        b = cell[1]
-        noise = int(np.random.laplace(0, lambd))
-        df_relations[a,b] = df_relations[a,b] + noise
-        if df_relations[a,b]<0:
-            df_relations[a,b]=0
+        frequency = 0
+        while frequency < 1:
+            a = cell[0]
+            b = cell[1]
+            noise = int(np.random.laplace(0, lambd))
+            df_relations[a,b] = df_relations[a,b] + noise
+            frequency = df_relations[a,b]
     return df_relations
 
 def write_to_dfg(df_relations, event_int_mapping, output):
