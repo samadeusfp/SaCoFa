@@ -9,7 +9,7 @@ result_dir_path = sys.argv[3]
 
 epsRange = [1.0,0.1,0.01]
 tries = 10                                                          # how many tries per epsilon
-modeRange = ['laplace','ba_prune','occured','ba','ba_multi']                   # 'bauer', 'ba', 'laplace'
+modeRange = ['laplace','ba_prune','occured','ba','ba_multi','df_laplace','df_exp1','df_exp2','df_exp3','df_exp4','df_exp5']                   # 'bauer', 'ba', 'laplace'
 df = pd.DataFrame()
 result_file_path = os.path.join(result_dir_path, log_name + "_results.csv")
 

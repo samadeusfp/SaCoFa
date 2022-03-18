@@ -7,7 +7,7 @@ base_path = sys.argv[2]
 original_log_path = sys.argv[3]
 epsRange = [0.1,0.01,1.0]
 #modeRange = ['occured','ba_prune']
-modeRange = ['laplace','ba_prune','occured','ba']
+modeRange = ['ba_prune','occured','ba','laplace']
 
 tries = 10
 
