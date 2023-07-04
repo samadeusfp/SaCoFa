@@ -46,4 +46,4 @@ SaCoFa was developed at the Database and Information Systems group of Humboldt-U
 
 ## Find out more about our research
 If you wamt find out more about our research, you can visit the following website: 
-https://sites.google.com/view/sfahrenkrog-petersen/start
+https://sites.google.com/view/sfahrenkrog-petersen/home
