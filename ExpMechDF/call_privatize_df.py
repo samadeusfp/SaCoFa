@@ -28,19 +28,18 @@ modeRange = ['df_exp','df_laplace']
 
 def main():
     log_x, log_pm4py = readLogFile(inPath)
-    epsilon = 1.0
     for mode in modeRange:
         for eps in epsRange:
             for i in range(tries):
                 if mode == 'df_laplace':
                     out_path = basePath + '/Out/' + logName + '/' + logName + '_' + str(eps) + '_' + mode + '_' + str(i) + ".xes"
-                    private_log = privatize_df_laplace.privatize_tracevariants(log_x, log_pm4py, epsilon)
+                    private_log = privatize_df_laplace.privatize_tracevariants(log_x, log_pm4py, eps)
                     xes_exporter.apply(private_log, out_path)
                 elif mode == 'df_exp':
                     for max_k in max_k_list:
                         out_path = basePath + '/Out/' + logName + '/' + logName + '_' + str(eps) + '_max_k' + str(
                             max_k) + '_' + mode + '_' + str(i) + ".xes"
-                        private_log = privatize_df_exp.privatize_tracevariants(log_x, log_pm4py, epsilon,max_k)
+                        private_log = privatize_df_exp.privatize_tracevariants(log_x, log_pm4py, eps,max_k)
                         xes_exporter.apply(private_log,out_path)
     print("Done for all eps for all tries.")
 
